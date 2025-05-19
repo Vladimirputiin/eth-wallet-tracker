@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ETH Wallet Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 2em; }
+    input, button { padding: 0.5em; margin: 0.5em 0; width: 100%; max-width: 400px; }
+    .result { margin-top: 2em; padding: 1em; background: white; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h1>ETH Wallet Tracker</h1>
+  <p>Enter an Ethereum address to view balance and recent transactions:</p>
+  <input id="walletInput" placeholder="0x..." />
+  <button onclick="trackWallet()">Track</button>
+  <div class="result" id="result"></div>
+  <script>
+    async function trackWallet() {
+      const address = document.getElementById('walletInput').value;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = 'Loading...';
+
+      const res = await fetch(`/api/track?address=${address}`);
+      const data = await res.json();
+
+      if (data.error) {
+        resultDiv.innerHTML = '<strong>Error:</strong> ' + data.error;
+      } else {
+        resultDiv.innerHTML = `
+          <strong>ETH Balance:</strong> ${data.balance} ETH<br>
+          <strong>Transactions:</strong>
+          <ul>${data.txs.map(tx => `<li>${tx.hash.slice(0, 10)}... → ${tx.to}</li>`).join('')}</ul>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
